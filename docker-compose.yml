@@ -1,5 +1,5 @@
 services:
-  web:
+  api:
     build: .
     ports:
       - "8000:8000"
@@ -7,19 +7,27 @@ services:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://andres:andres@db:5432/ScooterFlowAPI
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   db:
     image: postgres:15-alpine
     restart: always
     environment:
-      POSTGRES_USER: scooteruser
-      POSTGRES_PASSWORD: scooterpass
-      POSTGRES_DB: scooterdb
+      POSTGRES_USER: andres
+      POSTGRES_PASSWORD: andres
+      POSTGRES_DB: ScooterFlowAPI
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U andres -d ScooterFlowAPI"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

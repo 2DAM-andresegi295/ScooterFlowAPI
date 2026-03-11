@@ -1,0 +1,41 @@
+name: CI ScooterFlowAPI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: andres
+          POSTGRES_PASSWORD: andres
+          POSTGRES_DB: ScooterFlowAPI
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U andres -d ScooterFlowAPI"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://andres:andres@localhost:5432/ScooterFlowAPI
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements.txt
+      - name: Run Alembic migrations
+        run: alembic upgrade head
+      - name: Run tests
+        run: pytest app/test_main.py
+
