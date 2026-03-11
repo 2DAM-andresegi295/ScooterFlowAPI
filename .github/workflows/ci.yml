@@ -8,6 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
     services:
       postgres:
         image: postgres:15-alpine
@@ -35,7 +38,6 @@ jobs:
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
       - name: Run Alembic migrations
-        run: alembic upgrade head
+        run: alembic -c ${{ github.workspace }}/alembic.ini upgrade head
       - name: Run tests
         run: pytest app/test_main.py
-
