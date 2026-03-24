@@ -22,6 +22,26 @@ Para aplicar las migraciones manualmente dentro del contenedor de la API:
 docker compose exec api alembic upgrade head
 ```
 
+## Poblar la base de datos
+
+Para insertar datos de ejemplo (zonas y scooters) puedes usar el script `scripts/seed.py`.
+
+Dentro del contenedor:
+
+```powershell
+docker compose exec api python scripts/seed.py --create-tables
+```
+
+Localmente (PowerShell):
+
+```powershell
+python .\scripts\seed.py --create-tables
+```
+
+Si ya tienes las tablas creadas, ejecuta el mismo comando sin `--create-tables`.
+
+El script añade la raíz del proyecto al `PYTHONPATH` para permitir importaciones relativas cuando se ejecuta dentro del contenedor o localmente.
+
 ## Ejecutar tests
 
 Los tests usan una base SQLite aislada para ejecutarse de forma reproducible y sin depender de servicios externos.
@@ -33,7 +53,7 @@ pytest app/test_main.py -q
 
 ## CI/CD
 
-Cada `push` a la rama `main` levanta PostgreSQL en GitHub Actions, aplica las migraciones con Alembic y ejecuta los tests con `pytest`.
+Cada `push` a la rama main levanta PostgreSQL en GitHub Actions, aplica las migraciones con Alembic y ejecuta los tests con `pytest`.
 
 ## Estructura del proyecto
 - `app/`: código fuente de la API
@@ -42,4 +62,4 @@ Cada `push` a la rama `main` levanta PostgreSQL en GitHub Actions, aplica las mi
 - `Dockerfile`, `docker-compose.yml`, `requirements.txt`
 
 ## Autor
-ScooterFlow DevOps
+Andrés Manuel Egido Fernández
